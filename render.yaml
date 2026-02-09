@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: orbitthink-chatbot
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker backend.main:app --bind 0.0.0.0:10000
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: GROQ_API_KEY
+        sync: false

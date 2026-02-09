@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+requests
+beautifulsoup4
+chromadb
+openai
+apscheduler
+python-dotenv
+pydantic
+gunicorn
