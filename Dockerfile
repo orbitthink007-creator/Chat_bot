@@ -19,11 +19,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application
 COPY . .
 
-# create a directory for the database to ensure permissions
-RUN mkdir -p chroma_db && chmod 777 chroma_db
+# Create necessary directories and set permissions before switching user
+RUN mkdir -p logs scraped_pages chroma_db && \
+    chmod -R 777 logs scraped_pages chroma_db
 
 # Create a non-root user (Hugging Face Spaces requirement)
-RUN useradd -m -u 1000 user
+RUN useradd -m -u 1000 user && \
+    chown -R user:user /app
+
 USER user
 ENV HOME=/home/user \
     PATH=/home/user/.local/bin:$PATH
@@ -32,5 +35,4 @@ ENV HOME=/home/user \
 EXPOSE 7860
 
 # Command to run the application
-# We need to bind to 0.0.0.0 on port 7860
 CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "7860"]

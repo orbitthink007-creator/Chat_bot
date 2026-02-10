@@ -1,3 +1,11 @@
+---
+title: OrbitThink Chatbot
+emoji: 🤖
+colorFrom: purple
+colorTo: indigo
+sdk: docker
+pinned: false
+---
 # OrbitThink Chatbot
 
 A professional AI Chatbot for [OrbitThink Services](https://www.orbitthinkservices.com/), powered by RAG (Retrieval-Augmented Generation) technology.

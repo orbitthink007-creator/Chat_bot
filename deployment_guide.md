@@ -1,111 +1,75 @@
 # Deployment Guide - OrbitThink Chatbot
 
-Follow these steps to deploy your chatbot to **Hugging Face Spaces** (Recommended) or Render.
-
-## Prerequisites
-
-- A GitHub account.
-- A [Hugging Face](https://huggingface.co/) account (for Option 1).
-- A [Render](https://render.com) account (for Option 2).
-- Access to edit the code of `orbitthinkservices.com`.
-
-## Step 1: Push Code to GitHub
-
-1.  Initialize a git repository if you haven't already:
-    ```bash
-    git init
-    git add .
-    git commit -m "Initial commit"
-    ```
-2.  Create a new repository on GitHub.
-3.  Push your code:
-    ```bash
-    git remote add origin <your-github-repo-url>
-    git push -u origin main
-    ```
+Follow these steps to deploy your professional chatbot system. We will use a **Split Strategy** for maximum performance:
+1. **Backend** (Logic & AI): Hugging Face Spaces (Docker).
+2. **Frontend** (UI & Widget): Netlify (Static Hosting).
 
 ---
 
-## Option 1: Deploy to Hugging Face Spaces (Recommended)
+## 🏗️ Part 1: Backend Deployment (Hugging Face)
+**Goal:** Run the Python API that connects to Groq.
 
-Hugging Face Spaces offers a robust free tier for AI applications.
+1.  **Push Entire Project to GitHub**:
+    - Push your root folder (containing `backend/`, `frontend/`, `Dockerfile`, etc.) to GitHub.
+    - Hugging Face needs the **Dockerfile** in the root to build the backend.
 
-1.  **Create a New Space**:
-    - Go to [Hugging Face Spaces](https://huggingface.co/spaces) and click **Create new Space**.
-    - **Space Name**: e.g., `orbitthink-chatbot`
-    - **License**: Apache 2.0 (or your choice)
-    - **SDK**: Select **Docker**. (This is important!)
-    - Click **Create Space**.
+2.  **Create a New Hugging Face Space**:
+    - Go to [Hugging Face Spaces](https://huggingface.co/spaces).
+    - **Name**: `orbitthink-chatbot`
+    - **SDK**: Select **Docker** (Required).
+    - **Public/Private**: Recommended Public (for ease of use).
 
-2.  **Connect Your GitHub Repo**:
-    - In your new Space, go to **Settings**.
-    - Scroll down to **Git** / **Connect a repository**.
-    - Enter your GitHub repository URL (e.g., `https://github.com/orbitthink007-creator/Chat_bot`).
-    - Authorize Hugging Face to access your repo.
+3.  **Connect GitHub**:
+    - In Space **Settings**, connect your repository.
+    - Hugging Face will start building from your **Dockerfile**.
 
-3.  **Set Environment Variables**:
-    - Still in **Settings**, scroll to **Variables and secrets**.
-    - Click **New secret**.
-    - **Name**: `GROQ_API_KEY`
-    - **Value**: Paste your Groq API Key.
-    - Click **Save**.
+4.  **Add your Groq Key**:
+    - In Space **Settings** -> **Variables and secrets**.
+    - Add a **Secret** named `GROQ_API_KEY` with your actual key.
 
-4.  **Build and Run**:
-    - Hugging Face will automatically detect the `Dockerfile` in your repo and start building.
-    - You can watch the build logs in the **App** tab.
-    - Once built, your app will be live!
-
-5.  **Get Your URL**:
-    - Your URL will be `https://<your-username>-<space-name>.hf.space`.
-    - Note: You might need to use `https://<your-username>-<space-name>.hf.space/api/chat` for the API endpoint.
+5.  **Get your Backend URL**:
+    - Once the build is "Running", your URL looks like: 
+      `https://<username>-orbitthink-chatbot.hf.space`
+    - **Your API endpoint is**: `https://<username>-orbitthink-chatbot.hf.space/api/chat`
 
 ---
 
-## Option 2: Deploy to Render
+## 🎨 Part 2: Frontend Deployment (Netlify)
+**Goal:** Host your landing page and the chat widget.
 
-1.  Log in to your Render dashboard.
-2.  Click **New +** and select **Web Service**.
-3.  Connect your GitHub repository.
-4.  Render should automatically detect the configuration from `render.yaml`.
-    - **Runtime**: Python 3
-    - **Build Command**: `pip install -r backend/requirements.txt`
-    - **Start Command**: `gunicorn -k uvicorn.workers.UvicornWorker backend.main:app --bind 0.0.0.0:10000`
-5.  **Environment Variables**:
-    - Scroll down to "Environment Variables" and add:
-        - `GROQ_API_KEY`: Your Groq API Key.
-6.  Click **Create Web Service**.
-7.  Wait for the deployment to finish. Once live, copy your service URL (e.g., `https://orbitthink-chatbot.onrender.com`).
+1.  **Login to Netlify**:
+    - Go to [Netlify.com](https://www.netlify.com/) and click **Add new site** -> **Import from an existing project**.
+    - Select your GitHub repo.
+
+2.  **Configure Site Settings (CRITICAL)**:
+    - **Base directory**: Leave empty (Root).
+    - **Build command**: Leave empty.
+    - **Publish directory**: Type **`frontend`** (This ensures your site opens at `yoursite.netlify.app` instead of `yoursite.netlify.app/frontend`).
+
+3.  **Click Deploy**:
+    - Netlify will host your `index.html` and `widget.js`.
 
 ---
 
-## Step 3: Update Frontend Widget
+## 🔗 Part 3: Connecting the Two (Final Step)
 
-1.  Open `frontend/widget.js` in your local project.
-2.  Find the line:
+Before you are completely finished, you must point your Frontend to your new Backend.
+
+1.  Open `frontend/widget.js`.
+2.  Update the production URL at the top:
     ```javascript
-    const API_URL = "http://localhost:8000/api/chat";
+    // Change this to your Hugging Face API URL
+    const API_URL = "https://<username>-orbitthink-chatbot.hf.space/api/chat";
     ```
-3.  Replace it with your new production URL.
-    - **For Hugging Face**: `https://<your-username>-<space-name>.hf.space/api/chat`
-    - **For Render**: `https://orbitthink-chatbot.onrender.com/api/chat`
-4.  Commit and push this change to GitHub to keep your code updated.
+3.  **Push the change to GitHub**:
+    - Netlify will automatically update your site in seconds!
 
-## Step 4: Embed in Your Website
+---
 
-1.  Upload the `frontend/widget.js` file to your website's hosting (e.g., where `orbitthinkservices.com` is hosted) or serve it from a CDN.
-    - If you can't host the JS file separately, you can copy the entire content of `widget.js` and wrap it in `<script>` tags.
-2.  Add the following code to the `<body>` of your website's HTML pages where you want the bot to appear:
+## 📂 Summary: Which files go where?
 
-    ```html
-    <!-- OrbitThink Chatot Widget -->
-    <script src="path/to/your/uploaded/widget.js"></script>
-    ```
-
-    *If you paste the code directly:*
-    ```html
-    <script>
-      // Paste the full content of widget.js here
-    </script>
-    ```
-
-3.  Publish your website changes. The chatbot should now appear in the bottom right corner!
+| Platform | Folder Needed | Why? |
+| :--- | :--- | :--- |
+| **Hugging Face** | **Entire Project** | Needs `Dockerfile` (Root) and `backend/` logic. |
+| **Netlify** | **`frontend/`** folder | Needs `index.html` and `widget.js` to show the site. |
+| **GitHub** | **Entire Project** | This is your one-stop "Source of Truth". |
